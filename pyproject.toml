@@ -12,6 +12,7 @@ dependencies = [
     "fastapi>=0.115.0",
     "httpx>=0.27.0",
     "openai>=1.97.0",
+    "openai-agents>=0.22.0",
     "python-dotenv>=1.0.0",
     "twilio>=9.12.0",
     "twilio-agent-connect[server]>=2.4.0",

@@ -1,64 +1,86 @@
 # Conversational Agent Memory
 
-This repository contains the SMS and Voice application for Designing AI Agents That Remember.
+This repository contains the SMS and Voice application for Building AI Agents That Remember.
 See [DEMO.md](DEMO.md) for the live demo sequence.
 
 ## Session details
 
-**Title**: Designing AI Agents That Remember
+**Title**: Building AI Agents That Remember
 
 **Abstract**:
 
-Agents don’t remember simply because a transcript exists. Useful memory requires deliberate choices: who is speaking, what should be retained, how memories change over time, and which context matters now.
+Agents don’t remember simply because a transcript exists. Useful memory requires deliberate choices about who is speaking, what should be retained, how memories change over time, and which context matters now.
 
-In this live demo, we’ll explore how conversational agents can turn fragmented interactions into useful, durable memory. We’ll examine practical approaches to capturing context, retrieving it when needed, and using it to create more relevant interactions across channels.
+In this live demo, we’ll explore how to turn fragmented interactions into durable memory. We’ll examine practical approaches to capturing context, retrieving it when needed, and using it to create more relevant interactions across channels.
 
-Attendees will leave with a practical framework for designing agents that maintain continuity, adapt over time, and deliver personalised conversations, instead of starting from scratch with every interaction.
+Attendees will leave with a practical framework for building conversational agents that maintain continuity, adapt over time, and deliver personalised experiences across interactions.
 
 ## Demo architecture
 
 ```mermaid
 flowchart LR
-    Customer["Customer<br/>SMS or Voice"]
-    TAC["Twilio Agent Connect<br/>channel, identity, memory"]
-    Agent["DemoAgent<br/>conversation logic"]
-    OpenAI["OpenAI<br/>Responses API"]
-    Tool["Order tool"]
-    Memory["Conversation Memory<br/>durable customer context"]
+    Customer["Customer"]
+    SMS["SMS"]
+    Voice["Voice"]
+    CO["Conversation Orchestrator<br/>conversations + communications"]
+    Memory["Memory Store<br/>profiles + durable memory"]
+    TAC["Agent Connect SDK"]
+    Agent["Demo Agent"]
+    Working["Working Memory<br/>session history"]
+    Procedural["Procedural Memory<br/>instructions + tools"]
+    Action["Order Action"]
 
-    Customer <--> TAC <--> Agent <--> OpenAI
-    OpenAI -. "function call" .-> Tool
-    TAC <--> Memory
+    Customer <--> SMS
+    Customer <--> Voice
+    SMS <--> CO
+    Voice <--> CO
+    CO -->|"profile resolution + extraction"| Memory
+    CO <-->|"communications (episodic)"| TAC
+    Memory -->|"semantic: traits + observations<br/>episodic: summaries"| TAC
+    TAC <--> Agent
+    Working --> Agent
+    Procedural --> Agent
+    Agent --> Action
 ```
 
-SMS and Voice share one agent. Agent Connect resolves identity and memory, while the OpenAI
-Responses API handles conversation state and tool calls.
+A customer interacts over SMS or Voice channel. Conversation Orchestrator captures those interactions as
+communications and groups them into a cross-channel conversation. Its linked Memory Store
+resolves customer profiles and stores traits, observations, and summaries. Agent Connect
+delivers communications and recalled context to the demo agent. The application supplies
+working memory through session history and procedural memory through instructions and tools.
+Following the [CoALA framework](https://arxiv.org/pdf/2309.02427), the four memory types are
+working (session history), episodic (communications and summaries), semantic (traits and
+observations), and procedural (instructions and tools).
+
+> **Zero Data Retention:** `ModelSettings(store=False)` explicitly disables response storage,
+> although OpenAI enforces this automatically for ZDR projects. `set_tracing_disabled(True)`
+> separately prevents the Agents SDK from sending hosted traces.
 
 ## Project structure
 
 ```
 conversational-agent-memory/
 ├── src/conversation_agent/
-│   ├── main.py          # Stable FastAPI, SMS, Voice, and Agent Connect wiring
-│   ├── demo.py          # Starting point edited live during the demo
-│   └── order_tool.py    # In-memory order action introduced in stage 5
-├── demo_stages/         # Complete reference implementations for stages 1–5
-├── scripts/             # Provisioning, seed, verification, and cleanup commands
-├── DEMO.md              # Presenter script and live-edit sequence
-├── .env.example         # Required configuration values
-└── run.sh               # Local application entry point
+│   ├── main.py          # App and channel wiring
+│   ├── agent.py         # Agent code edited live
+│   ├── memory_models.py # Four CoALA memory types
+│   └── order_tool.py    # Example agent action
+├── scripts/             # Setup and demo-data utilities
+├── DEMO.md              # Presenter guide
+├── .env.example         # Environment template
+└── run.sh               # Start the app
 ```
 
 ## Prerequisites
 
 Before you begin, you need:
 
-- Python 3.11 or later.
-- A Twilio account with a Voice and SMS-capable phone number.
-- A Twilio Account SID, Auth Token, API key, and API secret.
-- An OpenAI API key.
-- A public HTTPS domain that forwards to local port `8000`. Voice also uses the equivalent
-  secure WebSocket connection.
+- [Python 3.11+](https://www.python.org/downloads/).
+- An [OpenAI API key](https://platform.openai.com/api-keys).
+- A Twilio account with [API credentials](https://www.twilio.com/docs/iam/api-keys) and a
+  [Voice and SMS-capable number](https://www.twilio.com/docs/phone-numbers).
+- Access to [Twilio Conversations](https://www.twilio.com/docs/conversations).
+- A public HTTPS/WSS tunnel to local port `8000` and a phone for testing.
 
 ## Quickstart
 
@@ -115,7 +137,7 @@ python -m scripts.verify_demo
 ```
 
 Open `http://localhost:8000/health` to confirm that the server is running. During the demo,
-edit `src/conversation_agent/demo.py`, stop the server, and run `./run.sh` again after each
+edit `src/conversation_agent/agent.py`, stop the server, and run `./run.sh` again after each
 stage.
 
 ## Development
@@ -133,7 +155,7 @@ ruff check src scripts demo_stages
 - [Conversation Memory overview](https://www.twilio.com/docs/conversations/memory)
 - [Conversation Orchestrator overview](https://www.twilio.com/docs/conversations/orchestrator)
 - [Conversation Relay overview](https://www.twilio.com/docs/voice/conversationrelay)
-- [OpenAI Responses API reference](https://developers.openai.com/api/reference/resources/responses/methods/create)
+- [OpenAI Agents SDK](https://developers.openai.com/api/docs/guides/agents/sdk)
 
 ## License
 
