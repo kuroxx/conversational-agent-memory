@@ -30,7 +30,7 @@ def main() -> None:
     phone = os.environ["DEMO_CUSTOMER_PHONE"]
     profile_id = api.lookup_profile(phone)
     if profile_id is None:
-        raise SystemExit(f"No Memory profile found for {phone}; run scripts.seed_demo")
+        raise SystemExit(f"No Memory profile found for {phone}; run scripts.seed_profile")
 
     memory = api.recall(profile_id, "How will order 4521 be fulfilled?")
     recalled_text = " ".join(
