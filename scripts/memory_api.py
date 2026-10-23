@@ -9,6 +9,8 @@ import httpx
 
 @dataclass(frozen=True, slots=True)
 class MemoryApi:
+    """Create, look up, and recall Conversation Memory profiles."""
+
     store_id: str
     account_sid: str
     auth_token: str

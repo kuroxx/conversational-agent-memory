@@ -61,14 +61,26 @@ observations), and procedural (instructions and tools).
 ```
 conversational-agent-memory/
 ├── src/conversation_agent/
-│   ├── main.py          # App and channel wiring
-│   ├── agent.py         # Agent code edited live
-│   ├── memory_models.py # Four CoALA memory types
-│   └── order_tool.py    # Example agent action
-├── scripts/             # Setup and demo-data utilities
-├── DEMO.md              # Presenter guide
-├── .env.example         # Environment template
-└── run.sh               # Start the app
+│   ├── main.py             # FastAPI and Twilio channel wiring
+│   ├── agent.py            # OpenAI agent, memory, and retrieval tools
+│   ├── tools.py            # Custom order and SMS tools
+│   ├── order_store.py      # In-memory order data
+│   ├── memory_models.py    # Four CoALA memory types
+│   └── logging.py          # Readable live-demo checkpoints
+├── scripts/
+│   ├── setup.py            # Provision Memory and Orchestrator
+│   ├── seed_profile.py     # Seed the demo customer profile
+│   ├── seed_knowledge.py   # Seed Owl Bakery policies
+│   ├── memory_api.py       # Conversation Memory API helper
+│   ├── knowledge_api.py    # Enterprise Knowledge API helper
+│   ├── verify_demo.py      # Run preflight checks
+│   └── close_conversation.py
+├── assets/
+│   └── bakery_knowledge.md # Fictional company policies
+├── demo_stages/            # Recovery copies for the live build
+├── DEMO.md                 # Presenter guide
+├── .env.example            # Environment template
+└── run.sh                  # Start the app
 ```
 
 ## Prerequisites
@@ -80,6 +92,7 @@ Before you begin, you need:
 - A Twilio account with [API credentials](https://www.twilio.com/docs/iam/api-keys) and a
   [Voice and SMS-capable number](https://www.twilio.com/docs/phone-numbers).
 - Access to [Twilio Conversations](https://www.twilio.com/docs/conversations).
+- Access to Twilio Enterprise Knowledge if you want to demonstrate policy search.
 - A public HTTPS/WSS tunnel to local port `8000` and a phone for testing.
 
 ## Quickstart
@@ -103,8 +116,9 @@ cp .env.example .env
 ```
 
 Set the OpenAI key, Twilio credentials, Twilio phone number, demo customer phone number,
-and public domain in `.env`. Leave `TWILIO_MEMORY_STORE_ID` and
-`TWILIO_CONVERSATION_CONFIGURATION_ID` empty for now.
+and public domain in `.env`. Use only the public hostname for
+`TWILIO_VOICE_PUBLIC_DOMAIN`, without a protocol or path. Leave the generated resource IDs
+empty for now.
 
 ### 3. Provision Twilio resources
 
@@ -121,16 +135,29 @@ Copy the two generated IDs into the matching fields in `.env`.
 In the Twilio Console, configure the phone number's incoming Voice webhook to send a `POST`
 request to `https://<your-domain>/twiml`.
 
-### 5. Prepare the demo data
+### 5. Seed the customer profile
 
-Seed a known customer profile and run the preflight verification.
+Create the known customer profile and its initial order memory, then run the preflight checks.
 
 ```bash
-python -m scripts.seed_demo
+python -m scripts.seed_profile
 python -m scripts.verify_demo
 ```
 
-### 6. Run the application
+### 6. Seed Enterprise Knowledge
+
+Create the Owl Bakery knowledge base and index the fictional policies.
+
+```bash
+python -m scripts.seed_knowledge
+```
+
+Copy the printed `TWILIO_KNOWLEDGE_BASE_ID` into `.env`. Edit
+`assets/bakery_knowledge.md` before running the command to change the policies. If your Twilio
+account doesn't have Enterprise Knowledge access, skip this step and leave the ID empty; the
+agent runs without the `search_bakery_knowledge` tool.
+
+### 7. Run the application
 
 ```bash
 ./run.sh

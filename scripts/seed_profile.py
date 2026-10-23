@@ -1,4 +1,9 @@
-"""Seed a reliable fallback memory for the live cake-order scenario."""
+"""Create a demo customer profile and seed memory for the cake-order scenario.
+
+Usage:
+    python -m scripts.seed_profile
+    python -m scripts.seed_profile --phone +15558675310
+"""
 
 import argparse
 import os

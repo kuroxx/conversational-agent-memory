@@ -187,7 +187,7 @@ def main() -> None:
     print("Add these values to .env:\n")
     print(f"TWILIO_MEMORY_STORE_ID={store_id}")
     print(f"TWILIO_CONVERSATION_CONFIGURATION_ID={configuration_id}")
-    print("\nNext: python -m scripts.seed_demo")
+    print("\nNext: python -m scripts.seed_profile && python -m scripts.seed_knowledge")
 
 
 if __name__ == "__main__":
