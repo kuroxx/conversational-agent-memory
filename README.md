@@ -63,7 +63,7 @@ Following the [CoALA framework](https://arxiv.org/pdf/2309.02427), this demo map
 four memory types as follows:
 
 - **Working memory:** the current conversation session and relevant recalled context.
-- **Episodic memory:** previous communications and conversation summaries.
+- **Episodic memory:** summaries of previous customer conversations.
 - **Semantic memory:** customer traits and durable observations.
 - **Procedural memory:** agent instructions and available tools.
 

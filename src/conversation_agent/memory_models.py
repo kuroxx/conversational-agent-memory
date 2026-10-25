@@ -1,4 +1,7 @@
-"""CoALA memory types and context assembly used in the demo."""
+"""Diagnostic models mapping recalled Twilio context to CoALA memory types.
+
+These models provide an explanatory view; the agent uses the underlying context directly.
+"""
 
 from collections.abc import Iterable, Mapping
 from typing import Any
@@ -9,22 +12,24 @@ from tac.models.tac import TACMemoryResponse
 
 
 class WorkingMemory(BaseModel):
-    """Recent messages from the active agent session."""
+    """Context actively available to the model for the current turn."""
 
     conversation_id: str
     channel: str
+    current_input: str
     history: list[dict[str, Any]] = Field(default_factory=list)
+    assembled_instructions: str
+    active_tools: list[str] = Field(default_factory=list)
 
 
 class EpisodicMemory(BaseModel):
-    """Previous customer interactions and conversation summaries."""
+    """Recalled summaries of previous customer conversations."""
 
     summaries: list[dict[str, Any]] = Field(default_factory=list)
-    communications: list[dict[str, Any]] = Field(default_factory=list)
 
 
 class SemanticMemory(BaseModel):
-    """Known customer facts, preferences, and observations."""
+    """Recalled customer traits and observations treated as durable knowledge."""
 
     profile_id: str | None = None
     traits: dict[str, Any] = Field(default_factory=dict)
@@ -32,55 +37,67 @@ class SemanticMemory(BaseModel):
 
 
 class ProceduralMemory(BaseModel):
-    """Instructions and tools that define what the agent can do."""
+    """Stable agent instructions and conversation-eligible capabilities."""
 
-    instructions: str
+    base_instructions: str
     tools: list[str] = Field(default_factory=list)
 
 
-class MemoryContext(BaseModel):
-    """The four memory types shown during the demo."""
+class LongTermMemory(BaseModel):
+    """Long-term memory recalled or activated for the current turn."""
 
-    working: WorkingMemory
     episodic: EpisodicMemory
     semantic: SemanticMemory
     procedural: ProceduralMemory
 
 
-def build_memory_context(
+class MemorySnapshot(BaseModel):
+    """Diagnostic view of recalled long-term memory and current working memory."""
+
+    long_term: LongTermMemory
+    short_term: WorkingMemory
+
+
+def build_memory_snapshot(
     *,
     context: ConversationSession,
     memory_response: TACMemoryResponse | None,
+    current_input: str,
     history: Iterable[Any],
-    instructions: str,
+    assembled_instructions: str,
+    base_instructions: str,
     tools: Iterable[Any],
-) -> MemoryContext:
-    """Build a display snapshot without creating a second memory store."""
+) -> MemorySnapshot:
+    """Build a diagnostic snapshot of the context available before a turn."""
 
     summaries = memory_response.summaries if memory_response else []
-    communications = memory_response.communications if memory_response else []
     observations = memory_response.observations if memory_response else []
+    tool_names = [_tool_name(tool) for tool in tools]
 
-    return MemoryContext(
-        working=WorkingMemory(
+    return MemorySnapshot(
+        short_term=WorkingMemory(
             conversation_id=context.conversation_id,
             channel=context.channel,
+            current_input=current_input,
             history=[_as_dict(item) for item in history],
+            assembled_instructions=assembled_instructions,
+            active_tools=tool_names,
         ),
-        episodic=EpisodicMemory(
-            summaries=[_as_dict(item) for item in summaries],
-            communications=[_as_dict(item) for item in communications],
-        ),
-        semantic=SemanticMemory(
-            profile_id=context.profile_id,
-            traits=dict(context.profile.traits)
-            if context.profile and context.profile.traits
-            else {},
-            observations=[_as_dict(item) for item in observations],
-        ),
-        procedural=ProceduralMemory(
-            instructions=instructions,
-            tools=[_tool_name(tool) for tool in tools],
+        long_term=LongTermMemory(
+            episodic=EpisodicMemory(
+                summaries=[_as_dict(item) for item in summaries],
+            ),
+            semantic=SemanticMemory(
+                profile_id=context.profile_id,
+                traits=dict(context.profile.traits)
+                if context.profile and context.profile.traits
+                else {},
+                observations=[_as_dict(item) for item in observations],
+            ),
+            procedural=ProceduralMemory(
+                base_instructions=base_instructions,
+                tools=tool_names,
+            ),
         ),
     )
 
@@ -92,7 +109,7 @@ def _as_dict(value: Any) -> dict[str, Any]:
         return dict(value)
     if hasattr(value, "model_dump"):
         return value.model_dump(mode="json")
-    raise TypeError(f"Cannot represent {type(value).__name__} in a memory context")
+    raise TypeError(f"Cannot represent {type(value).__name__} in a memory snapshot")
 
 
 def _tool_name(tool: Any) -> str:

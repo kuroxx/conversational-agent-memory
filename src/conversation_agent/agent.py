@@ -17,7 +17,7 @@ from tac.models.session import ConversationSession
 from tac.models.tac import TACMemoryResponse
 
 from conversation_agent.logging import log_demo
-from conversation_agent.memory_models import build_memory_context
+from conversation_agent.memory_models import build_memory_snapshot
 from conversation_agent.tools import ToolProvider
 
 set_tracing_disabled(True)  # ZDR blocks hosted trace ingestion.
@@ -77,15 +77,17 @@ class DemoAgent:
             session = SQLiteSession(conversation_id, ":memory:")
             self.sessions[conversation_id] = session
 
-        memory_context = build_memory_context(
+        _memory_snapshot = build_memory_snapshot(
             context=context,
             memory_response=memory_response,
+            current_input=user_message,
             history=await session.get_items(),
-            instructions=instructions,
+            assembled_instructions=instructions,
+            base_instructions=INSTRUCTIONS,
             tools=tools,
         )
         log_demo("USER INPUT", user_message)
-        log_demo("MEMORY CONTEXT", memory_context)
+        log_demo("MEMORY SNAPSHOT", _memory_snapshot)
         return agent, session
 
     async def handle_message(
