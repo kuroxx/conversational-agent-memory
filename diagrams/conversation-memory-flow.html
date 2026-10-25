@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Right Context. The Right Action.</title>
+  <style>
+    :root {
+      --ink: #111114;
+      --muted: #6c6c74;
+      --line: #d7d7dd;
+      --paper: #ffffff;
+      --soft: #f7f7f8;
+      --red: #e8213b;
+      --red-soft: #fff2f4;
+      --green: #087a55;
+      --green-soft: #eef9f4;
+      --blue: #1769e0;
+      --blue-soft: #eef5ff;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    main {
+      position: relative;
+      width: min(1600px, 100%);
+      margin: 0 auto;
+      padding: 34px 24px 42px;
+    }
+
+    .export-button {
+      position: absolute;
+      top: 28px;
+      right: 24px;
+      z-index: 1;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--paper);
+      color: var(--ink);
+      padding: 9px 14px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .export-button:hover { background: var(--soft); }
+    .export-button:focus-visible { outline: 3px solid var(--blue-soft); outline-offset: 2px; }
+    .export-button:disabled { cursor: wait; opacity: .65; }
+
+    header { margin-bottom: 22px; text-align: center; }
+    h1 {
+      margin: 0;
+      font-size: clamp(32px, 4vw, 50px);
+      font-weight: 650;
+      letter-spacing: -.045em;
+      line-height: 1;
+    }
+    header p { margin: 11px 0 0; color: var(--muted); font-size: 14px; }
+
+    .flow-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 22px; }
+    svg { display: block; width: 100%; min-width: 1260px; height: auto; }
+
+    .node { fill: var(--paper); stroke: var(--line); stroke-width: 1.3; }
+    .memory { fill: var(--green-soft); stroke: #82c8ae; }
+    .live { fill: var(--blue-soft); stroke: #8cb9f5; }
+    .twilio-service { fill: var(--red-soft); stroke: #ef9ba7; }
+    .soft { fill: var(--soft); stroke: var(--line); }
+    .decision { fill: var(--paper); stroke: var(--line); stroke-width: 1.3; }
+
+    .flow { fill: none; stroke: var(--ink); stroke-width: 1.6; marker-end: url(#arrow); }
+    .flow-bus { fill: none; stroke: var(--ink); stroke-width: 1.6; }
+    .twilio-flow { fill: none; stroke: var(--red); stroke-width: 1.6; marker-end: url(#arrow-twilio); }
+
+    .title { fill: var(--ink); font-size: 15px; font-weight: 700; }
+    .title.long { font-size: 13px; }
+    .circle-title { fill: var(--ink); font-size: 12.5px; font-weight: 700; }
+    .title.inverse { fill: var(--paper); }
+    .type { fill: var(--green); font-size: 8px; font-weight: 750; letter-spacing: .75px; }
+    .type.neutral { fill: var(--muted); }
+    .type.inverse { fill: #9fe0c5; }
+    .type.service { fill: var(--red); }
+    .label { fill: var(--muted); font-size: 9px; font-weight: 700; }
+    .label.twilio-flow-label { fill: var(--red); }
+    .twilio { fill: var(--red); font-size: 8.5px; font-weight: 700; }
+    .twilio.long { font-size: 7.5px; }
+    .twilio.inverse { fill: var(--red); }
+    .app { fill: var(--blue); font-size: 8.5px; font-weight: 700; }
+    .label-bg { fill: var(--paper); }
+
+    @media (max-width: 760px) {
+      main { padding: 70px 12px 34px; }
+      .export-button { top: 18px; right: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <button class="export-button" type="button">Export JPG</button>
+    <header>
+      <h1>The right context. The right action.</h1>
+      <p>A simplified customer-service flow through CoALA memory and actions.</p>
+    </header>
+
+    <div class="flow-wrap">
+      <svg viewBox="0 0 1420 780" role="img" aria-labelledby="flow-title flow-description">
+        <title id="flow-title">Horizontal customer memory flow</title>
+        <desc id="flow-description">A conversation starts with session history and checks for an existing profile. If none is found, a profile is created. Semantic, episodic, and procedural long-term memory feed a shared working context. The agent grounds that context with current external data, takes an external action, and learns durable facts and experiences after the conversation.</desc>
+
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="var(--ink)"></path></marker>
+          <marker id="arrow-twilio" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="var(--red)"></path></marker>
+        </defs>
+
+        <g transform="translate(0 40)">
+
+        <!-- Start and identity decision -->
+        <text class="type" x="70" y="264" text-anchor="middle">CURRENT SESSION</text>
+        <text class="app" x="70" y="282" text-anchor="middle">Conversation history</text>
+        <circle class="node" cx="70" cy="340" r="42"></circle>
+        <text class="circle-title" x="70" y="336" text-anchor="middle">Start</text>
+        <text class="circle-title" x="70" y="353" text-anchor="middle">conversation</text>
+
+        <path class="flow" d="M112 340 H160"></path>
+        <path class="decision" d="M160 340 L223 270 L286 340 L223 410 Z"></path>
+        <text class="title" x="223" y="334" text-anchor="middle">Profile</text>
+        <text class="title" x="223" y="353" text-anchor="middle">found?</text>
+        <text class="twilio" x="223" y="373" text-anchor="middle">Orchestrator + Memory</text>
+
+        <!-- New customer profiles become semantic memory -->
+        <path class="flow" d="M223 270 V60 H350"></path>
+        <rect class="label-bg" x="230" y="246" width="32" height="16" rx="4"></rect>
+        <text class="label" x="246" y="257" text-anchor="middle">NO</text>
+        <rect class="node twilio-service" x="350" y="20" width="210" height="80" rx="20"></rect>
+        <text class="title" x="455" y="56" text-anchor="middle">Create customer profile</text>
+        <text class="twilio" x="455" y="77" text-anchor="middle">Conversation Memory</text>
+        <path class="flow" d="M455 100 V160"></path>
+
+        <!-- Existing customers retrieve all long-term memory into working context -->
+        <path class="flow-bus" d="M286 340 H335"></path>
+        <rect class="label-bg" x="294" y="320" width="30" height="16" rx="4"></rect>
+        <text class="label" x="309" y="331" text-anchor="middle">YES</text>
+        <text class="label" x="310" y="356" text-anchor="middle">retrieve</text>
+
+        <path class="flow-bus" d="M335 200 V480"></path>
+        <path class="flow" d="M335 200 H350"></path>
+        <path class="flow" d="M335 340 H350"></path>
+        <path class="flow" d="M335 480 H350"></path>
+
+        <rect class="node memory" x="350" y="160" width="210" height="80" rx="20"></rect>
+        <text class="type" x="455" y="183" text-anchor="middle">SEMANTIC MEMORY</text>
+        <text class="title" x="455" y="207" text-anchor="middle">What do we know?</text>
+        <text class="twilio long" x="455" y="227" text-anchor="middle">Profile · traits · observations</text>
+
+        <rect class="node memory" x="350" y="300" width="210" height="80" rx="20"></rect>
+        <text class="type" x="455" y="323" text-anchor="middle">EPISODIC MEMORY</text>
+        <text class="title long" x="455" y="347" text-anchor="middle">What happened before?</text>
+        <text class="twilio long" x="455" y="367" text-anchor="middle">Summaries · communications</text>
+
+        <rect class="node memory" x="350" y="440" width="210" height="80" rx="20"></rect>
+        <text class="type" x="455" y="463" text-anchor="middle">PROCEDURAL MEMORY</text>
+        <text class="title" x="455" y="487" text-anchor="middle">How should we act?</text>
+        <text class="app" x="455" y="507" text-anchor="middle">Agent instructions + tools</text>
+
+        <!-- All three memory types inform one assembled working context -->
+        <path class="flow" d="M560 200 H575 V310 H600"></path>
+        <path class="flow" d="M560 340 H600"></path>
+        <path class="flow" d="M560 480 H575 V370 H600"></path>
+
+        <rect class="node soft" x="600" y="290" width="190" height="100" rx="22"></rect>
+        <text class="type neutral" x="695" y="315" text-anchor="middle">WORKING MEMORY</text>
+        <text class="title" x="695" y="341" text-anchor="middle">Assemble context</text>
+        <text class="app" x="695" y="363" text-anchor="middle">Session + relevant recall</text>
+
+        <path class="flow" d="M790 340 H830"></path>
+        <text class="label" x="810" y="326" text-anchor="middle">ground</text>
+
+        <rect class="node live" x="830" y="300" width="170" height="80" rx="20"></rect>
+        <text class="type neutral" x="915" y="323" text-anchor="middle">GROUNDING ACTION</text>
+        <text class="title" x="915" y="347" text-anchor="middle">What is true now?</text>
+        <text class="app" x="915" y="367" text-anchor="middle">Live application tools</text>
+
+        <path class="flow" d="M1000 340 H1040"></path>
+        <text class="label" x="1020" y="326" text-anchor="middle">decide</text>
+
+        <rect class="node soft" x="1040" y="300" width="170" height="80" rx="20"></rect>
+        <text class="type neutral" x="1125" y="323" text-anchor="middle">EXTERNAL ACTION</text>
+        <text class="title" x="1125" y="350" text-anchor="middle">Respond or act</text>
+
+        <path class="flow" d="M1210 340 H1268"></path>
+        <circle class="node soft" cx="1310" cy="340" r="42"></circle>
+        <text class="circle-title" x="1310" y="336" text-anchor="middle">End</text>
+        <text class="circle-title" x="1310" y="353" text-anchor="middle">conversation</text>
+
+        <!-- Only durable information returns to memory -->
+        <path class="twilio-flow" d="M1310 382 V510"></path>
+        <text class="label twilio-flow-label" x="1322" y="452">INACTIVE / CLOSED</text>
+        <rect class="node twilio-service" x="1215" y="510" width="190" height="80" rx="20"></rect>
+        <text class="type service" x="1310" y="533" text-anchor="middle">LEARNING ACTION</text>
+        <text class="title" x="1310" y="557" text-anchor="middle">Update durable memory</text>
+        <text class="twilio long" x="1310" y="577" text-anchor="middle">Summaries · observations</text>
+
+        <!-- Compact color key -->
+        <rect class="memory" x="490" y="650" width="14" height="14" rx="4"></rect>
+        <text class="label" x="514" y="661">Long-term memory</text>
+        <rect class="live" x="675" y="650" width="14" height="14" rx="4"></rect>
+        <text class="label" x="699" y="661">Application-managed</text>
+        <rect class="twilio-service" x="830" y="650" width="14" height="14" rx="4"></rect>
+        <text class="label" x="854" y="661">Twilio-managed</text>
+        </g>
+      </svg>
+    </div>
+
+  </main>
+  <script>
+    const exportButton = document.querySelector('.export-button');
+
+    exportButton.addEventListener('click', () => {
+      const diagram = document.querySelector('.flow-wrap svg');
+      const sourceStyles = document.querySelector('style').textContent;
+      const exportedSvg = diagram.cloneNode(true);
+      const diagramWidth = 1420;
+      const diagramHeight = 780;
+      const headerHeight = 130;
+      const scale = 2;
+      const svgNamespace = 'http://www.w3.org/2000/svg';
+
+      exportedSvg.setAttribute('xmlns', svgNamespace);
+      exportedSvg.setAttribute('width', diagramWidth);
+      exportedSvg.setAttribute('height', diagramHeight);
+      exportedSvg.setAttribute('font-family', 'Arial, Helvetica, sans-serif');
+
+      const embeddedStyles = document.createElementNS(svgNamespace, 'style');
+      embeddedStyles.textContent = sourceStyles;
+      exportedSvg.insertBefore(embeddedStyles, exportedSvg.firstChild);
+
+      const svgMarkup = new XMLSerializer().serializeToString(exportedSvg);
+      const svgBlob = new Blob([svgMarkup], { type: 'image/svg+xml;charset=utf-8' });
+      const svgUrl = URL.createObjectURL(svgBlob);
+      const image = new Image();
+
+      exportButton.disabled = true;
+      exportButton.textContent = 'Exporting…';
+
+      image.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = diagramWidth * scale;
+        canvas.height = (diagramHeight + headerHeight) * scale;
+
+        const context = canvas.getContext('2d');
+        context.scale(scale, scale);
+        context.fillStyle = '#ffffff';
+        context.fillRect(0, 0, diagramWidth, diagramHeight + headerHeight);
+
+        context.fillStyle = '#111114';
+        context.font = '650 46px Arial, Helvetica, sans-serif';
+        context.textAlign = 'center';
+        context.fillText('The right context. The right action.', diagramWidth / 2, 54);
+
+        context.fillStyle = '#6c6c74';
+        context.font = '14px Arial, Helvetica, sans-serif';
+        context.fillText(
+          'A simplified customer-service flow through CoALA memory and actions.',
+          diagramWidth / 2,
+          86
+        );
+
+        context.drawImage(image, 0, headerHeight, diagramWidth, diagramHeight);
+        URL.revokeObjectURL(svgUrl);
+
+        canvas.toBlob((jpgBlob) => {
+          if (!jpgBlob) {
+            exportButton.disabled = false;
+            exportButton.textContent = 'Export JPG';
+            return;
+          }
+
+          const downloadUrl = URL.createObjectURL(jpgBlob);
+          const link = document.createElement('a');
+          link.href = downloadUrl;
+          link.download = 'conversation-memory-flow.jpg';
+          link.click();
+          URL.revokeObjectURL(downloadUrl);
+          exportButton.disabled = false;
+          exportButton.textContent = 'Export JPG';
+        }, 'image/jpeg', 0.94);
+      };
+
+      image.onerror = () => {
+        URL.revokeObjectURL(svgUrl);
+        exportButton.disabled = false;
+        exportButton.textContent = 'Export JPG';
+      };
+
+      image.src = svgUrl;
+    });
+  </script>
+</body>
+</html>

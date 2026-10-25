@@ -11,7 +11,9 @@ short-lived session state, Enterprise Knowledge, and live order data.
 - Use Python 3.11 or newer.
 - Install development dependencies with `pip install -e ".[dev]"`.
 - Copy `.env.example` to `.env` for local configuration.
-- Never commit `.env`, API keys, authentication tokens, phone numbers, or generated customer data.
+- Never commit `.env`, API keys, authentication tokens, real phone numbers, or generated customer
+  data. Clearly synthetic phone numbers from officially reserved test ranges are acceptable as
+  fixtures; keep any externally routable number in local environment configuration.
 - Treat setup, messaging, calling, and cleanup scripts as operations that can affect external
   resources. Do not run them unless the user explicitly requests it.
 

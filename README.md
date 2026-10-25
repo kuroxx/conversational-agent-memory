@@ -25,45 +25,80 @@ flowchart LR
     Customer["Customer"]
     SMS["SMS"]
     Voice["Voice"]
-    CO["Conversation Orchestrator<br/>conversations + communications"]
-    Memory["Memory Store<br/>profiles + durable memory"]
-    TAC["Agent Connect SDK"]
+    CO["Conversation Orchestrator"]
+    Memory["Conversation Memory"]
+    TAC["Agent Connect"]
+    Context["Agent Context"]
+    Runtime["Session history + instructions"]
     Agent["Demo Agent"]
-    Working["Working Memory<br/>session history"]
-    Procedural["Procedural Memory<br/>instructions + tools"]
-    Action["Order Action"]
+    Tools["Tools + actions<br/>knowledge · live data · messaging"]
+    Extract["Conversation Intelligence"]
 
     Customer <--> SMS
     Customer <--> Voice
     SMS <--> CO
     Voice <--> CO
-    CO -->|"profile resolution + extraction"| Memory
-    CO <-->|"communications (episodic)"| TAC
-    Memory -->|"semantic: traits + observations<br/>episodic: summaries"| TAC
-    TAC <--> Agent
-    Working --> Agent
-    Procedural --> Agent
-    Agent --> Action
+    CO <--> TAC
+    TAC --> Context
+    Context --> Agent
+    Agent --> Tools
+
+    CO <-->|"profiles + lifecycle"| Memory
+    Memory -->|"semantic + episodic"| Context
+    Runtime -->|"working + procedural"| Context
+    CO -->|"conversation ends"| Extract
+    Extract -->|"summaries + observations"| Memory
 ```
 
-A customer interacts over SMS or Voice channel. Conversation Orchestrator captures those interactions as
-communications and groups them into a cross-channel conversation. Its linked Memory Store
-resolves customer profiles and stores traits, observations, and summaries. Agent Connect
-delivers communications and recalled context to the demo agent. The application supplies
-working memory through session history and procedural memory through instructions and tools.
-Following the [CoALA framework](https://arxiv.org/pdf/2309.02427), the four memory types are
-working (session history), episodic (communications and summaries), semantic (traits and
-observations), and procedural (instructions and tools).
+A customer interacts with the demo agent over SMS or Voice. Conversation Orchestrator captures
+each communication, groups interactions into a cross-channel conversation, and resolves the
+customer profile through Conversation Memory. Agent Connect connects those conversations to the
+agent runtime, where relevant customer memory is combined with the current session and agent
+instructions. The agent can then use external tools for knowledge, live data, messaging, and other
+actions without treating that current information as durable memory. When a conversation ends,
+Conversation Intelligence can analyze it to produce summaries and observations for future
+interactions.
+
+Following the [CoALA framework](https://arxiv.org/pdf/2309.02427), this demo maps the
+four memory types as follows:
+
+- **Working memory:** the current conversation session and relevant recalled context.
+- **Episodic memory:** previous communications and conversation summaries.
+- **Semantic memory:** customer traits and durable observations.
+- **Procedural memory:** agent instructions and available tools.
+
+
+## How memory informs a conversation
+
+![CoALA conversation memory flow](diagrams/conversation-memory-flow.svg)
+
+The agent combines relevant long-term memory with the current session before checking live data
+and taking an action. When the conversation ends, durable summaries and observations can inform
+future interactions. See the [standalone conversation flow](diagrams/conversation-memory-flow.html)
+for a larger view and JPG export.
 
 ## Project structure
 
 ```
 conversational-agent-memory/
-├── src/conversation_agent/ # Demo app
-├── scripts/                # Setup and helper scripts
-├── assets/                 # Dummy data
-├── RUNBOOK.md              # Setup and demo guide
-└── run.sh                  # Run the app
+├── src/conversation_agent/
+│   ├── main.py             # FastAPI app and SMS/Voice channel wiring
+│   ├── agent.py            # Agent instructions, sessions, and model execution
+│   ├── memory_models.py    # Conversation Memory data models
+│   ├── order_store.py      # Simulated live order state
+│   └── tools/
+│       ├── memory.py       # Customer-memory recall
+│       ├── knowledge.py    # Enterprise Knowledge search
+│       ├── orders.py       # Live order tools
+│       ├── messaging.py    # Outbound messaging tools
+│       └── provider.py     # Conversation-scoped tool assembly
+├── diagrams/               # Architecture, sequence, and memory-flow diagrams
+├── assets/                 # Fictional bakery knowledge
+├── scripts/                # Setup, seeding, verification, and cleanup helpers
+├── README.md               # Architecture and project overview
+├── RUNBOOK.md              # Setup, demo, and cleanup instructions
+├── pyproject.toml          # Python package and development dependencies
+└── run.sh                  # Run the local application
 ```
 
 

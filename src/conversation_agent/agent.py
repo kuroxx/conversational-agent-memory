@@ -17,6 +17,7 @@ from tac.models.session import ConversationSession
 from tac.models.tac import TACMemoryResponse
 
 from conversation_agent.logging import log_demo
+from conversation_agent.memory_models import build_memory_context
 from conversation_agent.tools import ToolProvider
 
 set_tracing_disabled(True)  # ZDR blocks hosted trace ingestion.
@@ -27,7 +28,10 @@ INSTRUCTIONS = (
     "Keep responses short and conversational. "
     "When memories conflict, use the most recent information. "
     "Use recall_customer_memory when you need relevant details from earlier conversations. "
+    "Use lookup_orders or lookup_order for current order and cake details. "
+    "Use get_order_status for live fulfillment status rather than relying on memory. "
     "Use search_bakery_knowledge for product, ingredient, allergen, or policy questions. "
+    "Never claim an order was placed unless the create_order tool succeeded. "
     "Never claim an order changed unless the update_order tool succeeded. "
     "Only send an SMS when the customer explicitly asks you to, and only claim it was sent "
     "when the send_sms tool succeeded."
@@ -54,6 +58,7 @@ class DemoAgent:
         )
         log_demo("INSTRUCTIONS", instructions)
 
+        tools = await self.tools.for_session(context)
         agent = Agent(
             name="Bakery agent",
             model="gpt-5-nano",
@@ -64,7 +69,7 @@ class DemoAgent:
                 max_tokens=200,
             ),
             instructions=instructions,
-            tools=await self.tools.for_session(context),
+            tools=tools,
         )
         conversation_id = context.conversation_id
         session = self.sessions.get(conversation_id)
@@ -72,15 +77,15 @@ class DemoAgent:
             session = SQLiteSession(conversation_id, ":memory:")
             self.sessions[conversation_id] = session
 
-        log_demo("USER INPUT", user_message)
-        log_demo(
-            "CURRENT CONTEXT",
-            {
-                "conversation_id": conversation_id,
-                "session_history": await session.get_items(),
-                "recalled_memory": memory_response,
-            },
+        memory_context = build_memory_context(
+            context=context,
+            memory_response=memory_response,
+            history=await session.get_items(),
+            instructions=instructions,
+            tools=tools,
         )
+        log_demo("USER INPUT", user_message)
+        log_demo("MEMORY CONTEXT", memory_context)
         return agent, session
 
     async def handle_message(
