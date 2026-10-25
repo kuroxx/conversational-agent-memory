@@ -56,10 +56,30 @@ class MemoryApi:
         profile = profiles[0]
         return profile if isinstance(profile, str) else profile.get("id")
 
-    def recall(self, profile_id: str, query: str | None = None) -> dict[str, Any]:
-        payload: dict[str, Any] = {"observationsLimit": 5, "summariesLimit": 3}
-        if query:
+    def recall(
+        self,
+        profile_id: str,
+        query: str | None = None,
+        *,
+        conversation_id: str | None = None,
+        observations_limit: int = 5,
+        summaries_limit: int = 3,
+    ) -> dict[str, Any]:
+        """Recall memory using conversation context, a query, or chronological recency."""
+        payload: dict[str, Any] = {
+            "observationsLimit": observations_limit,
+            "summariesLimit": summaries_limit,
+        }
+
+        # Mode 1: Build the query from the live Orchestrator conversation context.
+        if conversation_id:
+            payload["conversationId"] = conversation_id
+
+        # Mode 2: Search observations and summaries with the provided query verbatim.
+        elif query:
             payload["query"] = query
+
+        # Mode 3: With neither value set, return the most recent memories chronologically.
         return self.post(
             f"/Stores/{self.store_id}/Profiles/{profile_id}/Recall",
             payload,
