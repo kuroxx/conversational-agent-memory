@@ -60,7 +60,8 @@ Conversation Intelligence can analyze it to produce summaries and observations f
 interactions.
 
 Following the [CoALA framework](https://arxiv.org/pdf/2309.02427), this demo maps the
-four memory types as follows:
+four memory types as follows. Their representations are defined in
+[`memory_models.py`](src/conversation_agent/memory_models.py):
 
 - **Working memory:** the current conversation session and relevant recalled context.
 - **Episodic memory:** summaries of previous customer conversations.
@@ -84,7 +85,7 @@ conversational-agent-memory/
 ├── src/conversation_agent/
 │   ├── main.py             # FastAPI app and SMS/Voice channel wiring
 │   ├── agent.py            # Agent instructions, sessions, and model execution
-│   ├── memory_models.py    # Conversation Memory data models
+│   ├── memory_models.py    # CoALA Memory data models
 │   ├── order_store.py      # Simulated live order state
 │   └── tools/
 │       ├── memory.py       # Customer-memory recall
