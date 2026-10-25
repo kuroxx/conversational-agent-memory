@@ -34,6 +34,17 @@ class MemoryApi:
             response.raise_for_status()
             return response.json()
 
+    def patch(self, path: str, payload: dict[str, Any]) -> dict[str, Any]:
+        """Update selected fields on an existing Memory resource."""
+        with httpx.Client(
+            base_url=self.base_url,
+            auth=(self.account_sid, self.auth_token),
+            timeout=15,
+        ) as client:
+            response = client.patch(path, json=payload)
+            response.raise_for_status()
+            return response.json()
+
     def lookup_profile(self, phone: str) -> str | None:
         result = self.post(
             f"/Stores/{self.store_id}/Profiles/Lookup",

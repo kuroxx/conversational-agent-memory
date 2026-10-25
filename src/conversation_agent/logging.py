@@ -28,4 +28,4 @@ def log_demo(label: str, value: Any) -> None:
         )
 
     line = "─" * 60
-    demo_logger.info("\n%s\nDEMO · %s\n%s\n%s", line, label, value, line)
+    demo_logger.info("\n%s\nDEMO · %s\n%s\n", line, label, value)

@@ -27,7 +27,7 @@ Copy the example environment file.
 cp .env.example .env
 ```
 
-Set the OpenAI key, Twilio credentials, Twilio phone number, demo customer phone number,
+Set the OpenAI key, Twilio credentials, Twilio phone number, demo customer name and phone number,
 and public domain in `.env`. Use only the public hostname for
 `TWILIO_VOICE_PUBLIC_DOMAIN`, without a protocol or path. Leave the generated resource IDs
 empty for now.
@@ -50,6 +50,7 @@ request to `https://<your-domain>/twiml`.
 ### 5. Seed the customer profile
 
 Create the known customer profile and its initial order memory, then run the preflight checks.
+Rerun the seed command after changing `DEMO_CUSTOMER_FIRST_NAME` to update an existing profile.
 
 ```bash
 python -m scripts.seed_profile
@@ -76,6 +77,27 @@ agent runs without the `search_bakery_knowledge` tool.
 ```
 
 Open `http://localhost:8000/health` to confirm that the server is running.
+
+## Test the demo story
+
+Use the phone configured as `DEMO_CUSTOMER_PHONE` so the agent can resolve the seeded profile.
+
+1. Call the Twilio number and say, "Hi, do you remember me?"
+   Confirm that the agent uses the name configured as `DEMO_CUSTOMER_FIRST_NAME`.
+2. Say, "What did we previously discuss about my birthday cake?"
+   Confirm that the agent recalls the request to change order `4521` from pickup to delivery and
+   the need to provide a delivery time.
+3. Say, "Please deliver it between 2 and 4 PM to 24 Rose Lane. Go ahead and update the order."
+   Confirm that the agent reports the change only after the order update succeeds.
+4. Say, "What does the cake inscription say?"
+   Confirm that the agent reads the current order data and answers, "Happy Birthday Maya!"
+5. Say, "Please text me a confirmation."
+   Confirm that the SMS arrives before the agent claims it was sent.
+6. Reply by SMS, "Thanks. What's the latest status of my birthday cake?"
+   Confirm that the agent continues across channels and returns the live order status rather than
+   treating it as durable customer memory.
+
+Restart the application before another rehearsal to reset the simulated order store.
 
 ## Development
 

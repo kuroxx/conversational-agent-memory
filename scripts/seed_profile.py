@@ -21,6 +21,9 @@ def main() -> None:
     args = parser.parse_args()
     if not args.phone:
         parser.error("pass --phone or set DEMO_CUSTOMER_PHONE")
+    first_name = os.getenv("DEMO_CUSTOMER_FIRST_NAME", "").strip()
+    if not first_name:
+        parser.error("set DEMO_CUSTOMER_FIRST_NAME")
 
     api = MemoryApi.from_env()
     profile_id = api.lookup_profile(args.phone)
@@ -29,11 +32,16 @@ def main() -> None:
             f"/Stores/{api.store_id}/Profiles",
             {
                 "traits": {
-                    "Contact": {"phone": args.phone, "firstName": "Anni"},
+                    "Contact": {"phone": args.phone, "firstName": first_name},
                 }
             },
         )
         profile_id = profile["id"]
+    else:
+        api.patch(
+            f"/Stores/{api.store_id}/Profiles/{profile_id}",
+            {"traits": {"Contact": {"firstName": first_name}}},
+        )
 
     api.post(
         f"/Stores/{api.store_id}/Profiles/{profile_id}/Observations",

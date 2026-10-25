@@ -86,8 +86,8 @@ class DemoAgent:
             base_instructions=INSTRUCTIONS,
             tools=tools,
         )
-        log_demo("USER INPUT", user_message)
-        log_demo("MEMORY SNAPSHOT", _memory_snapshot)
+        log_demo(f"USER INPUT [{context.channel}]", user_message)
+        # log_demo("MEMORY SNAPSHOT", _memory_snapshot)
         return agent, session
 
     async def handle_message(
